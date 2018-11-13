@@ -1,0 +1,154 @@
+# import Madoff-data to R
+madoffdata <- read.table(file.choose(), header = T)
+
+
+# Show the Madoff-data
+madoffdata
+
+# Doesn't seem to show all the data 
+
+# What is our "max.print"?
+getOption("max.print")
+
+# Let's change max.print to a greater value than before
+options(max.print = 9999999)
+
+# Now we can see all the data
+madoffdata
+
+# Let's create a new column for market return, let's call it "rm"
+madoffdata$rm <- madoffdata$rmrf + madoffdata$rf 
+
+# Let's print madoffdata out again
+madoffdata
+
+# In how many months rm is positive?
+rm_positive <- nrow(madoffdata[madoffdata$rm>0,])
+
+rm_positive
+
+# As a result we get 136 months out of 215 (market return) were above zero
+
+# Next: In how many months was the return of Fairfield Sentry fund positive?
+fsl_positive <- nrow(madoffdata[madoffdata$fsl>0,])
+
+fsl_positive
+
+# As a result, 198 fsl values out of 215 were positive 
+
+# Next question: In how many months fsl outperformed rm?
+
+# Let's add a column in which we see the remainder of fsl and rm
+madoffdata$fslorm <- madoffdata$fsl - madoffdata$rm
+
+madoffdata
+
+# Then we can count how many of fsrorm values are positive:
+fsl_outperformed <- nrow(madoffdata[madoffdata$fslorm>0,])
+
+fsl_outperformed
+
+# And we get: fsl outperformed market return on 95 months out of 215.
+
+rm_outperformed <-nrow(madoffdata[madoffdata$fslorm<0,])
+
+rm_outperformed
+
+# By the same way we get that market return outperformed fsl on 120 months
+
+# fsl outperformed as a percentage of months:
+fslorm_percentage <- fsl_outperformed/nrow(madoffdata)
+
+fslorm_percentage
+
+# rm outperformed as a percentage of months:
+rmofsl_percentage <- rm_outperformed/nrow(madoffdata)
+
+rmofsl_percentage
+
+
+# ASSIGNMENT 1B 
+# Sample average of fslrf (Fairfield's excess returns)
+fslrf_mean <- mean(madoffdata$fslrf)
+
+fslrf_mean
+
+# Let's check if our result is correct:
+fslrf_sum <- sum(madoffdata$fslrf)
+
+fslrf_sum
+
+fslrf_mean_check <- fslrf_sum/nrow(madoffdata)
+
+fslrf_mean_check
+
+# Mean of Fairfield's excess returns: 0,52
+
+# YES! We got it correct!
+
+# Next: Let's calculate the standard deviation of fslrf
+
+fslrf_sd <- sd(madoffdata$fslrf)
+
+fslrf_sd
+
+# Standard deviation of Fairfield's excess returns: 0,69
+
+# Now we may calculate the Sharpe ratio for Fairfield's stock
+
+fairfield_sharpe <- fslrf_mean/fslrf_sd
+
+fairfield_sharpe
+
+# Sharpe ratio of Fairfield: 0,76
+
+# Next we'll calculate the avg and sd of market excess returns
+rmrf_mean <- mean(madoffdata$rmrf)
+
+rmrf_mean
+
+# Mean of the excess market returns: 0,48
+
+# What is the standard deviation of excess market returns?
+
+rmrf_sd <- sd(madoffdata$rmrf)
+
+rmrf_sd
+
+# We get: 4,2
+
+# Let's then calculate the sharpe ratio for market returns
+market_sharpe <- rmrf_mean/rmrf_sd
+
+market_sharpe
+
+# We get: 0,11
+
+# RESULTS: 
+# Did Fairfield outperform the market (avgreturns): YES
+# Was Fairfield riskier than the market (sd): NO
+# Did Fairfield outperform market based on sharpe?: YES
+
+?hist
+histogram_rmrf <- hist(madoffdata$rmrf, breaks = 25)
+
+histogram_fslrf <- hist(madoffdata$fslrf, breaks = 25)
+
+# 1C: Estimate CAPM
+
+y <- madoffdata$fslrf
+
+x <- madoffdata$rmrf
+
+?lm
+
+plot(x,y)
+
+exc_returns <- lm(y ~ x)
+
+summary(exc_returns)
+abline(lm(y ~ x))
+
+# We got intercept 0,50 and slope 0,041
+
+# Using summary-command we get R-squared 0,06388 
